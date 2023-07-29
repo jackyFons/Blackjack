@@ -1,0 +1,89 @@
+ButtonBar {
+    -fx-max-width: 230px;
+    -fx-max-height: 40px;
+}
+
+Button {
+    -fx-max-height: 25px;
+    -fx-max-width: 60px;
+}
+
+.cards-table {
+    -fx-max-height: 565px;
+    -fx-max-width: 960px;
+    -fx-min-height: 565px;
+    -fx-min-width: 960px;
+    -fx-background-color: ghostwhite;
+}
+
+.casino-btn {
+    -fx-max-height: 75px;
+    -fx-max-width: 75px;
+    -fx-min-height: 75px;
+    -fx-min-width: 75px;
+    -fx-background-radius: 100%;
+    -fx-border-radius: 100%;
+    -fx-border-width: 10px;
+    -fx-text-fill: white;
+    -fx-border-color: white;
+    -fx-border-style: dashed;
+    -fx-text-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.casino-btn.blue{
+    -fx-background-color: royalblue;
+}
+
+.casino-btn.black {
+    -fx-background-color: black;
+}
+
+.casino-btn.green {
+    -fx-background-color: forestgreen;
+}
+
+.casino-btn.red {
+    -fx-background-color: firebrick;
+}
+
+.casino-btn.yellow {
+    -fx-background-color: gold;
+}
+
+
+.title {
+    -fx-font: 48px "Arial Black";
+}
+
+.help-text {
+    -fx-font: 14px "Arial Black";
+    -fx-pref-height: 30px;
+    -fx-pref-width: 150px;
+}
+
+.help-text.bet {
+    -fx-pref-width: 300px;
+}
+
+.casino-tokens {
+    -fx-max-height: 80px;
+}
+
+.casino-tokens.two {
+    -fx-max-width: 180px;
+    -fx-max-height: 80px;
+}
+
+.casino-tokens.three {
+    -fx-max-width: 255px;
+    -fx-max-height: 80px;
+}
+
+.dialog {
+    -fx-background-color: whitesmoke;
+    -fx-font: 36px "Arial Black";
+    -fx-border-color: black;
+
+}
+

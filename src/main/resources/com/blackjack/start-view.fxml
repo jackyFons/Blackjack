@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" styleClass="cards-table" xmlns="http://javafx.com/javafx/16"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.blackjack.StartController">
+    <Label text="Blackjack" styleClass="title"/>
+    <ButtonBar maxWidth="180.0" prefHeight="40.0">
+        <buttons>
+            <Button fx:id="startButton" onAction="#onStartClick" mnemonicParsing="false" text="Start Game"
+                  ButtonBar.buttonData="LEFT"/>
+            <Button fx:id="exitButton" onAction="#onExitClick" mnemonicParsing="false" text="Exit"
+                  ButtonBar.buttonData="RIGHT"/>
+        </buttons>
+        <VBox.margin>
+            <Insets top="20.0"/>
+        </VBox.margin>
+    </ButtonBar>
+</VBox>
