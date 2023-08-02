@@ -1,5 +1,9 @@
 package com.blackjack;
 
+import static com.blackjack.BlackjackController.GameResult.*;
+import static com.blackjack.Settings.*;
+import static com.blackjack.Player.PlayerType.*;
+
 import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,7 +15,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import com.blackjack.Player.PlayerType;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
@@ -19,7 +22,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-public class BlackjackController implements Settings {
+import java.util.Arrays;
+import java.util.List;
+
+public class BlackjackController {
+
+    public enum GameResult { WIN, LOSE, TIE, BLACKJACK, BUST }
 
     private Deck deck;
     private Player user, dealer;
@@ -32,13 +40,13 @@ public class BlackjackController implements Settings {
     private HBox dealersHand, usersHand;
 
     @FXML
-    GridPane tablePane;
+    private GridPane tablePane;
 
     @FXML
-    VBox betPane;
+    private VBox betPane;
 
     @FXML
-    private Button hitButton, standButton;
+    private Button hitButton, standButton, doubleDownButton;
 
     @FXML
     public Button button_5, button_25, button_50, button_100, button_500, betButton, allInButton, clearButton;
@@ -49,8 +57,8 @@ public class BlackjackController implements Settings {
      */
     @FXML
     public void initialize() {
-        user = new Player(PlayerType.USER);
-        dealer = new Player(PlayerType.DEALER);
+        user = new Player(USER);
+        dealer = new Player(DEALER);
         deck = new Deck();
 
         betTotal = 0;
@@ -71,14 +79,13 @@ public class BlackjackController implements Settings {
                 betTotal = 0;
                 break;
             case "All In":
-                betTotal = user.getMoney() * 2;
-                user.makeBet(betTotal / 2);
+                betTotal = user.getMoney();
+                user.makeBet(betTotal);
                 changeView(tablePane);
                 return;
             case "Bet":
                 if (betTotal > 0) {
                     user.makeBet(betTotal);
-                    betTotal *= 2;
                     changeView(tablePane);
                     return;
                 }
@@ -99,7 +106,7 @@ public class BlackjackController implements Settings {
      */
     @FXML
     protected void onStandButtonClick() {
-        changeButtonVisibility(false);
+        changeButtonVisibility(Arrays.asList(hitButton, doubleDownButton, standButton), false);
         dealersTurn(true);
     }
 
@@ -109,11 +116,31 @@ public class BlackjackController implements Settings {
      */
     @FXML
     protected void onHitButtonClick() {
+        if (doubleDownButton.visibleProperty().get()) {
+            doubleDownButton.setVisible(false);
+        }
         Card card = deck.drawCard();
         SequentialTransition transition = new SequentialTransition();
         drawCard(card, transition, user, usersHand, userScoreLbl);
         transition.setOnFinished(event -> checkScore());
         transition.play();
+    }
+
+
+    /*
+     * Doubling down: The user's bet is doubled, and they get one more card. The user can no longer hit.
+     */
+    @FXML
+    protected void onDoubleDownClick() {
+        if (user.getMoney() > betTotal) {
+            user.makeBet(betTotal);
+            betTotal *= 2;
+            userMoneyLbl.setText("Money: " + user.getMoney());
+        }
+        // Draw a card using the onHit function
+        onHitButtonClick();
+        changeButtonVisibility(Arrays.asList(hitButton, doubleDownButton, standButton), false);
+        dealersTurn(true);
     }
 
 
@@ -134,7 +161,10 @@ public class BlackjackController implements Settings {
 
         // After cards have been dealt, the hit & stand buttons become available and the user's score is checked.
         transition.setOnFinished(event -> {
-            changeButtonVisibility(true);
+            changeButtonVisibility(Arrays.asList(hitButton, standButton), true);
+            if (user.canDoubleDown()) {
+                doubleDownButton.setVisible(true);
+            }
             checkScore();
         });
         transition.play();
@@ -154,7 +184,7 @@ public class BlackjackController implements Settings {
         ft.setToValue(1.0);
 
         // Updates player score after the card has been handed.
-        int score = (player.getType() == PlayerType.DEALER) ? player.getHiddenScore() : player.getScore();
+        int score = (player.getType() == DEALER) ? player.getHiddenScore() : player.getScore();
         ft.setOnFinished(event -> scoreLbl.setText("Score: " + score));
 
         // Adds fade transition and a pause between fades to the animation.
@@ -170,12 +200,12 @@ public class BlackjackController implements Settings {
      * -- If the user hits 21, have the dealer draw cards next, and if the user goes over 21, reveal the dealer's hand.
      */
     private void checkScore() {
-        if (user.getScore() == BLACKJACK) {
-            changeButtonVisibility(false);
+        if (user.getScore() == BLACKJACK_TARGET) {
+            changeButtonVisibility(Arrays.asList(hitButton, doubleDownButton, standButton), false);
             dealersTurn(true);
         }
-        else if (user.getScore() > BLACKJACK) {
-            changeButtonVisibility(false);
+        else if (user.getScore() > BLACKJACK_TARGET) {
+            changeButtonVisibility(Arrays.asList(hitButton, doubleDownButton, standButton), false);
             dealersTurn(false);
         }
     }
@@ -205,7 +235,7 @@ public class BlackjackController implements Settings {
 
 
     /*
-     * Handles card flipping animation used to reveal the dealer's hidden card and actual score
+     * Handles card flipping animation used to reveal the dealer's hidden card and actual score.
      */
     private void revealDealersCard(SequentialTransition transition) {
         // Makes card visible
@@ -256,8 +286,8 @@ public class BlackjackController implements Settings {
      */
     private void endGame() {
         SequentialTransition st = new SequentialTransition();
-        PlayerType winner = getWinner();
-        if (winner == PlayerType.DEALER) {
+        GameResult result = getGameResult();
+        if (result == LOSE) {
             // Player lost and has no money to bet
             if (user.getMoney() == 0) {
                 announcementPopup("Game over!", Duration.millis(2000), st);
@@ -269,13 +299,21 @@ public class BlackjackController implements Settings {
             announcementPopup("You lost!", Duration.millis(3000), st);
         }
         // Player won
-        else if (winner == PlayerType.USER) {
-            user.updateMoney(betTotal);
+        else if (result == WIN) {
+            user.updateMoney(betTotal*2);
             announcementPopup("You won!", Duration.millis(3000), st);
+        }
+        // Bust - user does not get their money back
+        else if (result == BUST) {
+            announcementPopup("Bust!", Duration.millis(3000), st);
+        }
+        else if (result == BLACKJACK) {
+            user.updateMoney(betTotal*3);
+            announcementPopup("Blackjack!", Duration.millis(3000), st);
         }
         else {
             // Tie
-            user.updateMoney(betTotal/2);
+            user.updateMoney(betTotal);
             announcementPopup("Tie!", Duration.millis(3000), st);
         }
         st.play();
@@ -320,29 +358,38 @@ public class BlackjackController implements Settings {
 
 
     /*
-     * Gets enum type of winner or null if there's a tie.
+     * Gets enum of game's result.
      */
-    private PlayerType getWinner() {
+    private GameResult getGameResult() {
         int dealerScore = dealer.getScore();
         int userScore = user.getScore();
 
-        if (dealerScore == userScore) {
+        // User goes over 21.
+        if (userScore > BLACKJACK_TARGET) {
+            return BUST;
+        }
+        else if (dealerScore == userScore) {
+            // Dealer has a natural and user doesn't.
             if (dealer.isNatural() && !user.isNatural()){
-                return PlayerType.DEALER;
+                return LOSE;
             }
+            // User has a natural and dealer doesn't.
             else if (!dealer.isNatural() && user.isNatural()) {
-                return PlayerType.USER;
+                return BLACKJACK;
             }
-            return null;
+            // Both players have the same score.
+            return TIE;
         }
-
-        else if (dealerScore > BLACKJACK || (userScore > dealerScore && userScore <= BLACKJACK)) {
-            return PlayerType.USER;
+        // User wins when dealer goes over 21 or when the user's score is greater than the dealer's
+        else if (dealerScore > BLACKJACK_TARGET || userScore > dealerScore) {
+            return WIN;
         }
+        // User loses when their score is less than the dealer's.
         else {
-            return PlayerType.DEALER;
+            return LOSE;
         }
     }
+
 
     /*
      * Resets round
@@ -358,6 +405,7 @@ public class BlackjackController implements Settings {
         resetVisuals();
     }
 
+
     /*
      * Resets the whole game.
      */
@@ -371,6 +419,7 @@ public class BlackjackController implements Settings {
 
         startScreenView();
     }
+
 
     /*
      * Allows for switching between betting screen and playing screen.
@@ -387,13 +436,16 @@ public class BlackjackController implements Settings {
         }
     }
 
+
     /*
      * Used to change the visibility of buttons depending on whose turn it is.
      */
-    private void changeButtonVisibility(Boolean bool) {
-        hitButton.setVisible(bool);
-        standButton.setVisible(bool);
+    private void changeButtonVisibility(List<Button> buttons, Boolean bool) {
+        for (Button button : buttons) {
+            button.setVisible(bool);
+        }
     }
+
 
     /*
      * Clears shown cards and resets labels.
@@ -406,6 +458,7 @@ public class BlackjackController implements Settings {
         userScoreLbl.setText("Score: 0");
         dealerScoreLbl.setText("Score: 0");
     }
+
 
     /*
      * Used to switch scenes.

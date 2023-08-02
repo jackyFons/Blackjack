@@ -1,14 +1,13 @@
 package com.blackjack;
 
 import com.blackjack.Card.*;
+import static com.blackjack.Settings.*;
 
 import java.util.*;
 
-public class Deck implements Settings {
-    // Holds all unused cards
-    private List<Card> deck;
-    // Holds all used cards
-    private final List<Card> usedCards;
+public class Deck {
+    private List<Card> deck;                // Holds all unused cards
+    private final List<Card> usedCards;     // Holds all used cards
 
     /*
      * Constructor

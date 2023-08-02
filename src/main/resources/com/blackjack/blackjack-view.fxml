@@ -42,9 +42,11 @@
                 <ButtonBar>
                     <buttons>
                         <Button fx:id="hitButton" mnemonicParsing="false" onAction="#onHitButtonClick" text="Hit"
-                        ButtonBar.buttonData="RIGHT" visible="false"/>
+                        ButtonBar.buttonData="SMALL_GAP" visible="false"/>
+                        <Button fx:id="doubleDownButton" mnemonicParsing="false" onAction="#onDoubleDownClick"
+                                text="Double Down" ButtonBar.buttonData="SMALL_GAP" visible="false"/>
                         <Button fx:id="standButton" mnemonicParsing="false" onAction="#onStandButtonClick" text="Stand"
-                        ButtonBar.buttonData="LEFT" visible="false"/>
+                        ButtonBar.buttonData="SMALL_GAP" visible="false"/>
                     </buttons>
                 </ButtonBar>
             </HBox>

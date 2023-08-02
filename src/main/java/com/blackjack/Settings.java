@@ -1,10 +1,12 @@
 package com.blackjack;
 
-public interface Settings {
-    int DEALER_TARGET = 17;
-    int BLACKJACK = 21;
-    int STARTING_MONEY = 500;
+public class Settings {
+    private Settings() {}
 
-    int NUM_DECKS = 2;
-    int TOTAL_CARDS = NUM_DECKS * 52;
+    public static final int DEALER_TARGET = 17;
+    public static final int BLACKJACK_TARGET = 21;
+    public static final int STARTING_MONEY = 500;
+
+    public static final int NUM_DECKS = 2;
+    public static final int TOTAL_CARDS = NUM_DECKS * 52;
 }

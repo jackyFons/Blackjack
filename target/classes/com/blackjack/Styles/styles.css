@@ -1,11 +1,11 @@
 ButtonBar {
-    -fx-max-width: 230px;
+    -fx-max-width: 320px;
     -fx-max-height: 40px;
 }
 
 Button {
     -fx-max-height: 25px;
-    -fx-max-width: 60px;
+    -fx-max-width: 110px;
 }
 
 .cards-table {

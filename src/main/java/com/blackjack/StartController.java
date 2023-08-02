@@ -7,6 +7,7 @@ public class StartController {
     @FXML
     Button startButton, exitButton;
 
+
     /*
      * Changes to the playing screen.
      */
@@ -14,6 +15,7 @@ public class StartController {
     private void onStartClick() {
         Application.changeScene(Application.blackjackScene);
     }
+
 
     /*
      * Exits the game and closes the window.

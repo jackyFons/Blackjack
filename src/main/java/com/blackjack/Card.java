@@ -21,6 +21,7 @@ public class Card {
         }
     }
 
+
     /*
      * enum for card rank. This will be used in the Card object.
      *
@@ -49,6 +50,7 @@ public class Card {
             this.value = value;
         }
     }
+
 
     public final Suit suit;                 // Suit of card
     public final Rank rank;                 // Rank of card

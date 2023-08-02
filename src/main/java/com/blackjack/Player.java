@@ -2,8 +2,9 @@ package com.blackjack;
 
 import java.util.ArrayList;
 import java.util.List;
+import static com.blackjack.Settings.*;
 
-public class Player implements Settings {
+public class Player {
     public enum PlayerType { USER, DEALER }
 
 
@@ -29,6 +30,7 @@ public class Player implements Settings {
         this.money = STARTING_MONEY;
     }
 
+
     /*
      * Resets needed variables for new game.
      */
@@ -39,6 +41,7 @@ public class Player implements Settings {
         numOfAces = 0;
     }
 
+
     /*
      * Clears all variables.
      */
@@ -46,6 +49,7 @@ public class Player implements Settings {
         resetHand();
         money = STARTING_MONEY;
     }
+
 
     /*
      * Adds card to hand and updates player's variables
@@ -70,6 +74,7 @@ public class Player implements Settings {
         }
     }
 
+
     /*
      * Method to change the player's score when they draw a card.
      *
@@ -80,6 +85,7 @@ public class Player implements Settings {
         hiddenScore = score - hand.get(0).rank.value;
     }
 
+
     /*
      * Updates the player's money after a bet is made.
      *
@@ -88,6 +94,7 @@ public class Player implements Settings {
     public void makeBet(int bet) {
         money -= bet;
     }
+
 
     /*
      * Adds to the players total money after they won.
@@ -100,10 +107,26 @@ public class Player implements Settings {
 
 
     /*
+     * Checks both starting cards' total value is 9, 10, or 11 without an ace or 16, 17, 18 with an ace.
+     */
+    public boolean canDoubleDown() {
+        if (numOfAces == 0 && score > 8 && score < 12) {
+            return true;
+        }
+        else if (numOfAces > 0 && score > 15 && score < 19) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+
+    /*
      * Returns whether the player has a natural hand (2 cards totaling 21)
      */
     public boolean isNatural() {
-        return hand.size() == 2 && score == BLACKJACK;
+        return hand.size() == 2 && score == BLACKJACK_TARGET;
     }
 
 
